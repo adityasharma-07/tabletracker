@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TableTracker — Wireframes</title>
+<link rel="stylesheet" href="wf.css?v=5" />
+<style>
+  html, body { margin: 0; height: 100%; background: #efe9dc; }
+  /* color-scheme tweak: colorblind-safe (blue / orange / magenta) */
+  .cb-safe {
+    --ok:   #2f7fb5; --warn: #d98a2b; --full: #b5468a;
+    --ok-bg:#dfeaf2; --warn-bg:#f6ebd8; --full-bg:#f1deeb;
+  }
+  /* hide numbers tweak */
+  .no-nums .tbl span { display: none; }
+  /* section heading font in canvas should feel hand-drawn too */
+  .dc-handfont { font-family: 'Patrick Hand', cursive; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="tweaks-panel.jsx?v=5"></script>
+<script type="text/babel" src="design-canvas.jsx?v=5"></script>
+<script type="text/babel" src="wf-kit.jsx?v=5"></script>
+<script type="text/babel" src="mobile-screens.jsx?v=5"></script>
+<script type="text/babel" src="kiosk-screens.jsx?v=5"></script>
+
+<script type="text/babel">
+const { useTweaks, TweaksPanel, TweakSection, TweakToggle, TweakRadio } = window;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "annotations": true,
+  "colorScheme": "classic",
+  "tableNumbers": true
+}/*EDITMODE-END*/;
+
+function Board() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const cls = [
+    t.annotations ? '' : 'no-anno',
+    t.colorScheme === 'colorblind' ? 'cb-safe' : '',
+    t.tableNumbers ? '' : 'no-nums',
+  ].join(' ');
+
+  return (
+    <div className={cls} style={{ width:'100%', height:'100%' }}>
+      <DesignCanvas>
+        <DCSection id="picker" title="① Pick a dining hall" subtitle="Phone · 2 directions — how students choose where to go">
+          <DCArtboard id="picker-list" label="A · Crowd-meter list" width={300} height={620}><HallList /></DCArtboard>
+          <DCArtboard id="picker-map" label="B · Campus map w/ pins" width={300} height={620}><HallMap /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="floor" title="② Read the room — floor map" subtitle="Phone · 3 directions — the core view, literal table shapes">
+          <DCArtboard id="floor-pure" label="A · Pure map, tap a table" width={300} height={620}><MapPure /></DCArtboard>
+          <DCArtboard id="floor-sheet" label="B · Map + ranked list sheet" width={300} height={620}><MapSheet /></DCArtboard>
+          <DCArtboard id="floor-filter" label="C · Filters dim non-matches" width={300} height={620}><MapFilter /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="detail" title="③ Table detail" subtitle="Phone · 2 directions — seats, time open, hold / alert (V2)">
+          <DCArtboard id="detail-card" label="A · Detail card + hold" width={300} height={620}><DetailCard /></DCArtboard>
+          <DCArtboard id="detail-map" label="B · Mini-map context + alert" width={300} height={620}><DetailMap /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="kiosk" title="④ Entrance kiosk board" subtitle="Wall display · 2 directions — glance while walking in">
+          <DCArtboard id="kiosk-board" label="A · Map-first board" width={560} height={760}><KioskBoard /></DCArtboard>
+          <DCArtboard id="kiosk-zones" label="B · Big zone counts" width={560} height={760}><KioskZones /></DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel>
+        <TweakSection label="Wireframe options" />
+        <TweakToggle label="Margin notes" value={t.annotations} onChange={(v)=>setTweak('annotations', v)} />
+        <TweakRadio label="Status colors" value={t.colorScheme}
+          options={['classic','colorblind']}
+          onChange={(v)=>setTweak('colorScheme', v)} />
+        <TweakToggle label="Table numbers" value={t.tableNumbers} onChange={(v)=>setTweak('tableNumbers', v)} />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Board />);
+</script>
+</body>
+</html>
